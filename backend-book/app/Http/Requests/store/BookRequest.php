@@ -11,7 +11,7 @@ class BookRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,30 @@ class BookRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'id'=>'nullable|uuid',
+           // 'category_id'=>'required|uuid|exists:categories,id',
+            'price'=>"required|numeric|min :0",
+            'stock'=>"required|integer|min :0",
+            //translation
+            'translations' =>'required|array',
+            'translations.*.language_code'=>'required|string|size:2',
+            'translations.*name.'=>'required|string|max:255',
+            'translations.*.desc'=>"nullable|string",
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'category_id.required' => 'The category is required.',
+            'category_id.uuid' => 'Invalid category format.',
+            'category_id.exists' => 'Selected category does not exist.',
+            'price.required' => 'Price is required.',
+            'price.numeric' => 'Price must be a valid number.',
+            'price.min' => 'Price cannot be negative.',
+            'stock.required' => 'Stock quantity is required.',
+            'stock.integer' => 'Stock must be a whole number.',
+            'stock.min' => 'Stock cannot be negative.',
         ];
     }
 }

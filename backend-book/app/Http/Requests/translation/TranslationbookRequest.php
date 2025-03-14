@@ -11,7 +11,7 @@ class TranslationbookRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,11 @@ class TranslationbookRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'translatable_id' => 'required|uuid',
+            'translatable_type' => 'required|string|in:Book,Category',
+            'language_code' => 'required|string|size:2', // e.g., 'en', 'fr', 'es'
+            'name' => 'required|string|max:255',
+            'desc' => 'nullable|string',
         ];
     }
 }

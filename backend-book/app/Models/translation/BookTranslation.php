@@ -1,25 +1,29 @@
 <?php
 
-namespace App\Models\store;
+namespace App\Models\translation;
 
-use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-class Wishlist extends Model
+class BookTranslation extends Model
 {
     use HasFactory , SoftDeletes;
 
     public $incrementing = false;
     protected $keyType='string';
+    protected $table = 'book_translations'; // ✅ Explicitly setting the correct table name
 
     protected $fillable=
     [
-        'id',
-        'user_id',
-        'book_id'
+        
+        'translatable_id',
+        'translatable_type',
+        'language_code',
+        'name',
+        'desc',
     ];
 
     public static function boot()
@@ -32,15 +36,8 @@ class Wishlist extends Model
     }
 
 
-
-    public function users()
+    public function translatable():MorphTo
     {
-        return $this->belongsTo(User::class);
-    }
-
-    public function books()
-    {
-        return $this->belongsTo(Book::class);
-
+        return $this->morphTo();
     }
 }

@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('book_translations', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->morphs('translatable'); //handle book.category translations
+            $table->uuidMorphs('translatable'); //handle book.category translations
             $table->string('language_code',5);
             $table->string('name');
             $table->string('desc')->nullable();
+            $table->softDeletes(); // Add this line
             $table->timestamps();
 
             $table->unique(['translatable_type' , 'translatable_id' , 'language_code'] , 'translatable_lang_unique' );

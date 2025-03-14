@@ -11,7 +11,7 @@ class OrderRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,10 @@ class OrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'id'=>'nullable|uuid',
+            'user_id'=>'required|uuid|exists:users,id',
+            'total_price'=>"required|numeric|min:2",
+            'status'=>'required|string',
         ];
     }
 }
