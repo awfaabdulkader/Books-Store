@@ -13,22 +13,30 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
+    public function getCategoryTranslation($lang)
+    {
+        $categories = Category::whereHas('translations', function ($query) use ($lang) {
+            $query->where('language_code', $lang);
+        })->with(['translations' => function ($query) use ($lang) {
+            $query->where('language_code', $lang);
+        }])->get();
+    
+        return response()->json($categories);
+    }
+
+
     public function index()
     {
-        //
-    }
+        $fetchIndex= Category::with(['translations'=>function ($query)
+        {
+            $query->whereIn('language_code',['en' , 'fr' , 'ar']);
+        }])->paginate(10);
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+        return response()->json(['message' => 'Fsuccessfully!', 'category' => $fetchIndex], 201);
+
+    }
+    
     public function store(Request $request)
     {
         // Validate request
@@ -60,6 +68,38 @@ class CategoryController extends Controller
         return response()->json(['message' => 'Category created successfully!', 'category' => $category], 201);
     }
 
+    public function update(Request $request, string $id)
+    {
+         // Validate request
+         $request->validate([
+            'name' => 'required|string|max:255',
+            'translations' => 'nullable|array',
+            'translations.*.language_code' => ['required', 'string', 'max:5'],
+            'translations.*.name' => ['required', 'string', 'max:255'],
+        ]);
+
+        $updateCategory = Category::findOrFail($id);
+
+        $updateCategory->update(['name'=>$request->name]);
+
+        //update translation if provided
+        // Update translations if provided
+    if ($request->has('translations')) {
+        foreach ($request->translations as $translation) {
+            BookTranslation::updateOrCreate(
+                [
+                    'translatable_type' => Category::class,
+                    'translatable_id' => $updateCategory->id,
+                    'language_code' => $translation['language_code'],
+                ],
+                ['name' => $translation['name']]
+            );
+        }
+    }
+
+    return response()->json(['message' => 'Category updated successfully!', 'category' => $updateCategory], 200);
+    }
+
 
 
     /**
@@ -67,30 +107,21 @@ class CategoryController extends Controller
      */
     public function show(string $id)
     {
-        //
+        
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
+ 
+  
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        //
+        $destroyCategory = Category::findOrFail($id);
+
+        $destroyCategory->delete();
+
+        return response()->json(['message'=>'destroy deleted successfully!','book' =>$destroyCategory],200);
+
     }
 }

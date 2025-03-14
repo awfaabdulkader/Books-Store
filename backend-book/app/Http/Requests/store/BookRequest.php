@@ -26,6 +26,7 @@ class BookRequest extends FormRequest
            // 'category_id'=>'required|uuid|exists:categories,id',
             'price'=>"required|numeric|min :0",
             'stock'=>"required|integer|min :0",
+            'Author'=>"required|string",
             //translation
             'translations' =>'required|array',
             'translations.*.language_code'=>'required|string|size:2',

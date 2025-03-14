@@ -18,18 +18,14 @@ class BookController extends Controller
          $books = Book::with(['translations' => function ($query) use ($lang) {
              $query->where('language_code', $lang);
          }])->get();
- 
+     
+         if ($books->isEmpty()) {
+             return response()->json(['message' => 'No books found'], 404);
+         }
+     
          return response()->json($books);
      }
 
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -37,7 +33,7 @@ class BookController extends Controller
     public function store(BookRequest $request)
     {
         // Step 1: Create the book (base record)
-        $book = Book::create($request->only(['category_id', 'price', 'stock']));
+        $book = Book::create($request->only(['category_id', 'price', 'stock','Author']));
 
         // Step 2: Add translations
         foreach ($request->translations as $translation) {
@@ -46,6 +42,26 @@ class BookController extends Controller
 
         return response()->json(['message' => 'Book created successfully!', 'book' => $book->load('translations')], 201);
     }
+
+    public function update(BookRequest $request, string $id)
+    {
+        $updateBook = Book::findOrFail($id);
+
+        $updateBook->update($request->validated());
+
+        //update translation
+
+        foreach($request->translations as $translation)
+        {
+            $updateBook->translations()->updateOrCreate(
+                ['language_code'=>$translation['language_code']],
+                ['name' => $translation['name'], 'desc' => $translation['desc']]
+            );
+        }
+
+        return response()->json(['message'=>'Book updated successfully!','book' =>$updateBook->load('translations')],200);
+    }
+
 
     /**
      * Display the specified resource.
@@ -56,26 +72,14 @@ class BookController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        //
+        $destroyBook=Book::findOrFail($id);
+
+        $destroyBook->delete();
+        return response()->json(['message'=>'Book deleted successfully!','book' =>$destroyBook],200);
+
     }
 }

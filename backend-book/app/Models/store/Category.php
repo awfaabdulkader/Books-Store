@@ -2,7 +2,7 @@
 
 namespace App\Models\store;
 
-use App\Models\translation\Booktranslation;
+use App\Models\translation\BookTranslation;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -36,8 +36,11 @@ class Category extends Model
     }
 
 
-    public function translation(): MorphMany
-    {
-        return $this->morphMany(Booktranslation::class, 'trasnlatable');
-    }
+ // In Category model
+public function translations(): MorphMany
+{
+    return $this->morphMany(BookTranslation::class, 'translatable');
+}
+
+
 }

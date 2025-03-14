@@ -22,7 +22,8 @@ class Book extends Model
         'id',
         'category_id',
         'price',
-        'stock'
+        'stock',
+        'Author'
     ];
 
     protected static function boot()
